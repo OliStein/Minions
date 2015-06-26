@@ -125,7 +125,7 @@ class ana_data():
         
         
     def name_info_scope(self,line,rdef,pflag):
-        g.tprinter('Running name_info for histograms',pflag)
+        g.tprinter('Running name_info for scopes',pflag)
         
         self.rdef = rdef
         
@@ -313,7 +313,21 @@ class ana_data():
         else:
             g.printer('pass_flag = 1, skip',pflag)
             pass
+    def time_info(self,line,data,pflag): 
+        g.tprinter('Running time_info',pflag)
         
+        self.time_total= data[-1][0]-data[0][0]
+        self.time_start=data[0][0]
+        self.time_end = data[-1][0]
+        self.delta_time = (data[10][0]-data[0][0])/10
+        
+        
+        line[l.find_val('t total',self.header,0)] =self.time_total
+        line[l.find_val('t start',self.header,0)] =self.time_start
+        line[l.find_val('t end',self.header,0)] =self.time_end
+        line[l.find_val('t delta',self.header,0)] =self.delta_time
+        
+          
     def bin_time_cor(self,pflag): 
         g.tprinter('Running bin_time_cor',pflag)
         self.t_cor = np.array([1.6,1])
@@ -369,7 +383,23 @@ class ana_data():
             g.printer('pass_flag = 1, skip')
             pass 
     
-    
+    def sig_above(self,line,data,lim,pflag):
+        g.tprinter('Running sig_above',pflag)
+        self.sigab = 0
+        g.printer('limit '+str(lim),pflag)
+        rlim = (lim*0.001)
+        for i in data:
+            
+            if i[1] >= rlim:
+                
+                self.sigab +=1
+            
+            
+        line[l.find_val('sig '+str(lim)+' pt',self.header,0)] =self.sigab
+        line[l.find_val('sig '+str(lim)+' t',self.header,0)] =self.sigab*self.delta_time      
+        
+        
+        
     def max_finder(self,line,data,pflag):
         g.tprinter('Running max_finder',pflag)
         if self.pass_flag ==0:
