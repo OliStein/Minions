@@ -43,6 +43,7 @@ class ana_data():
         self.time_old = 0
         self.time_zero = 0
         self.set_zero_flag = 0
+        
     
     def header(self,header,pflag):
         self.header = header
@@ -62,25 +63,25 @@ class ana_data():
             g.printer('file needs to be analysed',pflag)
             return 1
     
-    def name_info_scope(self,line,pflag):
-        g.tprinter('Running name_info_for_scopes',pflag)
-        self.fname = line[l.find_val('file_name',self.header,0)] 
-        self.fname_list=self.fname.split('_')
-        self.daq_name = self.fname_list[1]
-        self.time_stamp = self.fname_list[0]
-        self.channel = self.fname_list[2]
-        self.meas_nr = self.fname_list[3] 
-        
-        g.printer('time stamp: '+str(self.time_stamp),pflag)
-        g.printer('meas nr: '+str(self.meas_nr),pflag)
-        g.printer('daq name: '+str(self.daq_name),pflag)
-        g.printer('channel: '+str(self.channel),pflag)
-        
-        line[l.find_val('time_stamp',self.header,0)] = self.time_stamp
-        line[l.find_val('meas_nr',self.header,0)] = self.meas_nr
-        line[l.find_val('daq_name',self.header,0)] = self.daq_name
-        line[l.find_val('channel',self.header,0)] = self.channel
-#         print self.fname_list    
+#     def name_info_scope(self,line,pflag):
+#         g.tprinter('Running name_info_for_scopes',pflag)
+#         self.fname = line[l.find_val('file_name',self.header,0)] 
+#         self.fname_list=self.fname.split('_')
+#         self.daq_name = self.fname_list[1]
+#         self.time_stamp = self.fname_list[0]
+#         self.channel = self.fname_list[2]
+#         self.meas_nr = self.fname_list[3] 
+#         
+#         g.printer('time stamp: '+str(self.time_stamp),pflag)
+#         g.printer('meas nr: '+str(self.meas_nr),pflag)
+#         g.printer('daq name: '+str(self.daq_name),pflag)
+#         g.printer('channel: '+str(self.channel),pflag)
+#         
+#         line[l.find_val('time_stamp',self.header,0)] = self.time_stamp
+#         line[l.find_val('meas_nr',self.header,0)] = self.meas_nr
+#         line[l.find_val('daq_name',self.header,0)] = self.daq_name
+#         line[l.find_val('channel',self.header,0)] = self.channel
+# #         print self.fname_list    
     
     def name_info_hist(self,line,rdef,pflag):
         g.tprinter('Running name_info for histograms',pflag)
@@ -122,6 +123,53 @@ class ana_data():
         line[l.find_val('type',self.header,0)] = self.type
         line[l.find_val('beam',self.header,0)] = self.beam
         
+        
+    def name_info_scope(self,line,rdef,pflag):
+        g.tprinter('Running name_info for histograms',pflag)
+        
+        self.rdef = rdef
+        
+        self.fname = line[l.find_val('file_name',self.header,0)] 
+        self.fname_list=self.fname.split('_')
+        self.daq_name = self.fname_list[1]+'_'+self.fname_list[2]
+        self.time_stamp = self.fname_list[0]
+#         self.mode = self.fname_list[2].split('.')[0]
+#         self.meas_nr = self.fname_list[3] 
+        
+        g.printer('time stamp: '+str(self.time_stamp),pflag)
+#         g.printer('meas nr: '+str(self.meas_nr),pflag)
+        g.printer('daq name: '+str(self.daq_name),pflag)
+#         g.printer('mode: '+str(self.mode),pflag)
+        
+        line[l.find_val('time_stamp',self.header,0)] = self.time_stamp
+#         line[l.find_val('meas_nr',self.header,0)] = self.meas_nr
+#         line[l.find_val('daq_name',self.header,0)] = self.daq_name
+#         line[l.find_val('mode',self.header,0)] = self.mode
+#         print self.fname_list    
+        self.rdefdaq = []
+        for i in self.rdef:
+            self.rdefdaq.append(i[0])
+            
+#         print self.rdefdaq
+        self.daq_ind=l.find_val(self.daq_name,self.rdefdaq,0)
+        self.ip=self.rdef[self.daq_ind][1]
+        self.beam=self.rdef[self.daq_ind][2]
+        self.loc=self.rdef[self.daq_ind][3]
+        self.dcum=self.rdef[self.daq_ind][4]
+        self.type=self.rdef[self.daq_ind][5]
+        self.channel=self.rdef[self.daq_ind][6]
+        self.name=self.rdef[self.daq_ind][7]
+        
+        
+        line[l.find_val('ip',self.header,0)] = self.ip
+        line[l.find_val('loc',self.header,0)] = self.loc
+        line[l.find_val('dcum',self.header,0)] = self.dcum
+        line[l.find_val('type',self.header,0)] = self.type
+        line[l.find_val('beam',self.header,0)] = self.beam
+        line[l.find_val('channel',self.header,0)] = self.channel
+        line[l.find_val('daq_name',self.header,0)] = self.name
+        
+            
     def time_cor(self,line,pflag):
         g.tprinter('Running time_cor',pflag)
         g.printer('Timestamps in UTC!',pflag)
