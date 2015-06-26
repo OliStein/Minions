@@ -28,10 +28,14 @@ g = gen()
 
 # class for dealing with csv files
 class csv_list():
+    def __init__(self):
+        self.list_ok = 0
+    
+    
     # module for loading a .csv file
     def csv_file_loader(self,path,fname,pflag):
         g.printer('running csv_file_loader',pflag)
-
+        data = []
         # Checks in path for fname 
         if os.path.isfile(os.path.join(path,fname)):
             g.printer(fname+' found',pflag)
@@ -42,10 +46,11 @@ class csv_list():
                 for line in csv.reader(f,delimiter = ',', skipinitialspace = True, dialect=csv.excel_tab):
                     data.append(line)
             f.close()
-            self
-           
+            g.printer('data loaded',pflag)
+            self.list_ok = 1
         else:
             g.printer('no '+fname+' found',pflag)
+            self.list_ok = 0
            
        
         
