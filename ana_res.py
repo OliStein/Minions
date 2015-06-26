@@ -17,14 +17,15 @@ import glob
 from csv_list_class import csv_list
 from gen_class import gen
 from list_class import lists
-from astropy.io.fits.header import Header
+# from astropy.io.fits.header import Header
 
 l = lists()
 c = csv_list()
 g = gen() 
 
 class ana_res():
-    
+    def __init__(self):
+        self.test = 0
     
     def infrastruc(self,path,pflag):
         g.tprinter('Running infrastruc',pflag)
@@ -56,8 +57,8 @@ class ana_res():
         g.tprinter('Running header_set',pflag)
         g.printer('Header: \n'+str(header),pflag)
         self.header = header
-        
-        g.printer(self.header,pflag)
+         
+#         g.printer(self.header,pflag)
                 
     def ana_file_creator(self,flag,pflag):
         g.tprinter('Running ana_file_creator',pflag)
