@@ -175,14 +175,14 @@ class ana_data():
         g.printer('Timestamps in UTC!',pflag)
         
         self.time_stamp_list = [self.time_stamp[:4],self.time_stamp[4:6],self.time_stamp[6:8],self.time_stamp[8:10],self.time_stamp[10:12],self.time_stamp[12:14]]
-        
+        self.time_stamp_string=str(self.time_stamp[:4])+'-'+str(self.time_stamp[4:6])+'-'+str(self.time_stamp[6:8])+'_'+str(self.time_stamp[8:10])+':'+str(self.time_stamp[10:12])+':'+str(self.time_stamp[12:14])
         line[l.find_val('year',self.header,0)] = self.time_stamp_list[0]
         line[l.find_val('month',self.header,0)] = self.time_stamp_list[1]
         line[l.find_val('day',self.header,0)] = self.time_stamp_list[2]
         line[l.find_val('hour',self.header,0)] = self.time_stamp_list[3]
         line[l.find_val('minute',self.header,0)] = self.time_stamp_list[4]
         line[l.find_val('second',self.header,0)] = self.time_stamp_list[5]
-    
+        
 #         print self.time_stamp_list
         
     def c_counter(self,line,pflag):

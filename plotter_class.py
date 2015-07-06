@@ -14,9 +14,10 @@ from log_file_setup import Tee
 import matplotlib.pyplot as plt
 from gen_class import gen
 from data_import import imp
+from list_class import lists
 
 g = gen()
-l = log_files()
+l = lists()
 i = imp() 
 
 
@@ -39,20 +40,48 @@ class plotter():
 #         g.printer(str(os.path.isdir(self.save_path)),pflag)
         
         
-    def simple_plotter(self,data,fn,save_flag,pflag):
+    def simple_plotter(self,line,data,header,save_flag,pflag):
         g.tprinter('Running simple_plotter',pflag)
 #         plt.xlim(0,100000)
+        self.plotname = line[l.find_val('file_name',header,0)].split(".")[0]
+        g.printer(self.plotname,pflag) 
         plt.plot(data[:,0],data[:,1])
+        plt.title(self.plotname)
+        plt.xlabel('time (s)')
+        plt.ylabel('signal (V)')
         
         if save_flag == 1:
-            file_name = os.path.join(self.save_path,str(fn)+'.png')
+            file_name = os.path.join(self.save_path,str(self.plotname)+'_plot.png')
             g.printer(file_name,pflag) 
             plt.savefig(file_name)
         else:
             plt.show()
         plt.close()
+     
+     
+    def simple_plotter_zoom(self,line,data,header,date_string,xlow,xup,save_flag,pflag):
+        g.tprinter('Running simple_plotter',pflag)
+#         plt.xlim(0,100000)
+        self.plotname = line[l.find_val('file_name',header,0)].split(".")[0]
+        g.printer(self.plotname,pflag) 
+        plt.title(self.plotname+'\n'+str(date_string))
+        plt.xlabel('time (s)')
+        plt.ylabel('signal (V)')
+        plt.xlim([xlow,xup])
+#         plt.xmin = -1e-6
+#         plt.xmax = 1e-6
+        plt.plot(data[:,0],data[:,1])
         
-    def zoom_plotter(self,data,fn,poi,n,save_flag,pflag):
+        if save_flag == 1:
+            file_name = os.path.join(self.save_path,str(self.plotname)+'_'+str(xlow)+'_to_'+str(xup)+'_plot.png')
+            g.printer(file_name,pflag) 
+            plt.savefig(file_name)
+        else:
+            plt.show()
+        plt.close()   
+        
+        
+    def zoom_plotter(self,line,data,header,poi,n,save_flag,pflag):
         g.tprinter('Running zoom_plotter',pflag)
 #         plt.xlim(0,100000)
         xdata = data[poi-n:poi+n,0]

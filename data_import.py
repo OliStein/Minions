@@ -36,17 +36,21 @@ class imp():
          
     def path_check(self,pflag):
         g.tprinter('Running path check',pflag)
+#         try:
         try:
+            os.chdir(self.path)
+            g.printer('path exists',pflag)
+        except:
             try:
-                os.chdir(self.path)
-                g.printer('path exists',pflag)
-            except:
                 os.mkdir(self.path)
                 g.printer('path created',pflag)
-        except:
-            g.printer('no correct path',pflag)
-            sys.exit('script stop')
-            
+            except:
+                g.printer('Could not create path',pflag)
+                sys.exit('script stop')
+#         except:
+#             g.printer('no correct path',pflag)
+#             sys.exit('script stop')
+#             
     
     def data_list_creator(self,ident,pflag):
         g.tprinter('Running data_list_creator',pflag)
