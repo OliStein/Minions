@@ -30,8 +30,9 @@ c = csv_list()
 
 class imp():
     
-    def path(self,d_path,pflag):
-        g.printer('data path: '+str(d_path),pflag)
+    def path_data(self,d_path,pflag):
+        g.tprinter('Running path',pflag)
+        g.printer('data path: '+d_path,pflag)
         self.path = d_path
          
     def path_check(self,pflag):
@@ -55,18 +56,31 @@ class imp():
     def data_list_creator(self,ident,pflag):
         g.tprinter('Running data_list_creator',pflag)
         
-        self.f = []
-        for (dirpath, dirnames, filenames) in os.walk(self.path):
-            self.f.extend(filenames)
-#             print self.f
-            break
+#         self.f = []
+# #         for (dirpath, dirnames, filenames) in os.walk(self.path):
+#         for (dirpath, dirnames, filenames) in os.walk(cwd):
+#             self.f.extend(filenames)
+# #             print self.f
+#             break
+        self.f = os.listdir(self.path)
+        print 'self.f'
+        print self.f
         k = []
+        print 'len(self.f)'
+        print len(self.f)
         for i in self.f:
 #             print i
             if i.endswith(str(ident)):
+#                 k.append([os.path.join(self.path,i),i])
                 k.append([os.path.join(self.path,i),i])
+#                 k.append(i)
 #             print k
+        
+        g.printer('Length data_list '+str(k),pflag)
+        
         self.data_list=k    
+        
+        
         
         if len(self.data_list)==0:
             g.printer('no data found length data_list == 0',pflag)

@@ -27,6 +27,18 @@ class ana_res():
     def __init__(self):
         self.test = 0
     
+    
+    def rosy_dir_creator(self,cwd,pflag):
+        g.tprinter('Running daq_dir_creator',pflag)
+        
+        
+        if not os.path.exists(cwd):
+            g.printer('creating daq dir',pflag)
+            os.mkdir(cwd)
+        else:
+            pass
+        
+    
     def infrastruc(self,path,pflag):
         g.tprinter('Running infrastruc',pflag)
         if os.path.exists(path) is not True:
@@ -58,8 +70,9 @@ class ana_res():
     def header_set(self,header,pflag):
         g.tprinter('Running header_set',pflag)
         g.printer('Header: \n'+str(header),pflag)
-        self.header=header
-        print self.header
+        
+        self.header=list(header)
+#         print self.header
          
 #         g.printer(self.header,pflag)
                 
@@ -79,21 +92,27 @@ class ana_res():
         
         c.csv_file_saver(self.ana_res_path,'ana_file.csv',self.header,flag,pflag)
               
-
+    def ana_file_name_set(self,r_name,pflag):
+        g.tprinter('Running ana_file_name',pflag)
+        self.ana_file_name = r_name+'_ana_file.csv'
+        
+        g.printer('Name: '+str(self.ana_file_name),pflag)
+        
+        
     def ana_file_loader(self,pflag):
         g.tprinter('Running ana_file_loader',pflag)
-        self.ana_file = c.csv_file_loader(self.ana_res_path,'ana_file.csv',pflag)
+        self.ana_file = c.csv_file_loader(self.ana_res_path,self.ana_file_name,pflag)
         
     def ana_file_saver(self,flag,pflag):
         g.tprinter('Running ana_file_saver',pflag)
-        c.csv_file_saver(self.ana_res_path,'ana_file.csv',self.ana_file,flag,pflag)
+        c.csv_file_saver(self.ana_res_path,self.ana_file_name,self.ana_file,flag,pflag)
            
     def ana_file_writer(self,dlist,pflag):
         g.tprinter('Running ana_file_writer',pflag)
         for i in dlist:
 #             print i[0]
             if str(i[0]) in np.array(self.ana_file):
-                g.printer(str(i)+' is in ana_file',pflag)
+                g.printer(str(i[0])+' is in ana_file',pflag)
                 pass
             else:
                 g.printer(str(i[0])+' is not in ana_file',pflag)
@@ -103,20 +122,72 @@ class ana_res():
                 self.ana_file.append(nline)
 #                 print nline
                 
+    def check_for_ana_file(self,ana_file_path,force_flag,pflag):
+        g.tprinter('Running check_for_ana_file',pflag)
+        self.ana_file_dir = os.path.join(ana_file_path,self.ana_file_name)
+        
+        if os.path.isfile(self.ana_file_dir) == True and force_flag == 0:
+            g.printer('ana_file exists',pflag)  
+            g.printer('Loading ana_file',pflag)
+            try:
+                self.ana_file=c.csv_file_loader(ana_file_path,self.ana_file_name,pflag)
+            except:
+                sys.exit('script stop')
+        else:
             
-    def ana_file_updater(self,dlist,pflag):
+            if force_flag == 1:
+                g.printer('force_flag',pflag)
+            else:
+                g.printer('ana_file does not exist',pflag)
+            
+            g.printer('creating ana_file',pflag)
+            self.ana_file = self.header
+        
+        g.tprinter('saving file',pflag)
+        c.csv_file_saver(ana_file_path,self.ana_file_name,self.ana_file,1,pflag)
+        
+    def data_path_set(self,data_path,pflag):
+        g.tprinter('Running data_path_set',pflag)  
+        self.data_path = data_path 
+        
+        
+    def data_list_creator(self,ident,pflag):
+        g.tprinter('Running data_list_creator',pflag)
+        
+
+        f = os.listdir(self.data_path)
+      
+        k = []
+        
+        for i in f:
+            g.printer(str(i),pflag)
+            if i.endswith(str(ident)):
+#                 k.append([os.path.join(self.path,i),i])
+                k.append([os.path.join(self.data_path,i),i])
+#                 k.append(i)
+#             print k
+        
+        g.printer('Length data_list: '+str(len(k)),pflag)
+        
+        self.data_list=k        
+        
+                
+    def ana_file_updater(self,pflag):
         g.tprinter('Running list_updater',pflag)
         
-        for i in dlist:
+        for i in self.data_list:
             if str(i[0]) in np.array(self.ana_file):
-                g.printer(str(i)+' is in ana_file',pflag)
-                pass
+                g.printer(str(i[-1])+' is in ana_file',pflag)
+                
             else:
-                g.printer(str(i[0])+' is not in ana_file',pflag)
+                
                 nline = [0]*len(self.ana_file[0])
                 nline[l.find_val('file_name',self.ana_file[0],0)] = i[-1]
                 nline[l.find_val('file_name_path',self.ana_file[0],0)] = i[-2]
+                
                 self.ana_file.append(nline)
+                g.printer(str(i[-1])+' was added to ana_file',pflag)
+                
             
             
                     
@@ -137,12 +208,16 @@ class ana_res():
             
             
     def file_setup(self,path,fname,pflag):
-        g.tprinter('Running fiel_setup',pflag)
+        g.tprinter('Running file_setup',pflag)
         g.printer('file name: '+str(fname),pflag)
         
         if self.file_check(path,fname,pflag) == True:
+            print 'file exists'
 #             print 'peng'
             self.data_sets=c.csv_file_loader(path,fname,pflag)
+            print fname
+            print 'file loaded'
+            print self.data_sets
         else:
             try:
 #                 print 'puff'

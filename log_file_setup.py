@@ -40,7 +40,8 @@ class Tee(object):
 class log_files():
     
     # Setting up the log file in the directory where the script is saved
-    def log_file_set(self,path,name):
+    def log_file_set(self,path,name,pflag):
+        g.tprinter('Running log_file_set',pflag)
         if not os.path.exists(os.path.join(path,'log_files')):
             os.mkdir(os.path.join(path,'log_files'))
         

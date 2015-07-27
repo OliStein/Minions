@@ -45,7 +45,7 @@ class ana_data():
         self.set_zero_flag = 0
         
     
-    def header(self,header,pflag):
+    def header_set(self,header,pflag):
         self.header = header
         self.pass_flag = 0
         print self.header
@@ -84,7 +84,7 @@ class ana_data():
 # #         print self.fname_list    
     
     def name_info_hist(self,line,rdef,pflag):
-        g.tprinter('Running name_info for histograms',pflag)
+        g.tprinter('Running name_info',pflag)
         
         self.rdef = rdef
         
@@ -170,21 +170,66 @@ class ana_data():
         line[l.find_val('daq_name',self.header,0)] = self.name
         
             
+#     def time_cor(self,line,pflag):
+#         g.tprinter('Running time_cor',pflag)
+#         g.printer('Timestamps in UTC!',pflag)
+#         
+#         self.time_stamp_list = [self.time_stamp[:4],self.time_stamp[4:6],self.time_stamp[6:8],self.time_stamp[8:10],self.time_stamp[10:12],self.time_stamp[12:14]]
+#         self.time_stamp_string=str(self.time_stamp[:4])+'-'+str(self.time_stamp[4:6])+'-'+str(self.time_stamp[6:8])+'_'+str(self.time_stamp[8:10])+':'+str(self.time_stamp[10:12])+':'+str(self.time_stamp[12:14])
+#         line[l.find_val('year',self.header,0)] = self.time_stamp_list[0]
+#         line[l.find_val('month',self.header,0)] = self.time_stamp_list[1]
+#         line[l.find_val('day',self.header,0)] = self.time_stamp_list[2]
+#         line[l.find_val('hour',self.header,0)] = self.time_stamp_list[3]
+#         line[l.find_val('minute',self.header,0)] = self.time_stamp_list[4]
+#         line[l.find_val('second',self.header,0)] = self.time_stamp_list[5]
+
+
     def time_cor(self,line,pflag):
         g.tprinter('Running time_cor',pflag)
         g.printer('Timestamps in UTC!',pflag)
         
-        self.time_stamp_list = [self.time_stamp[:4],self.time_stamp[4:6],self.time_stamp[6:8],self.time_stamp[8:10],self.time_stamp[10:12],self.time_stamp[12:14]]
-        self.time_stamp_string=str(self.time_stamp[:4])+'-'+str(self.time_stamp[4:6])+'-'+str(self.time_stamp[6:8])+'_'+str(self.time_stamp[8:10])+':'+str(self.time_stamp[10:12])+':'+str(self.time_stamp[12:14])
-        line[l.find_val('year',self.header,0)] = self.time_stamp_list[0]
-        line[l.find_val('month',self.header,0)] = self.time_stamp_list[1]
-        line[l.find_val('day',self.header,0)] = self.time_stamp_list[2]
-        line[l.find_val('hour',self.header,0)] = self.time_stamp_list[3]
-        line[l.find_val('minute',self.header,0)] = self.time_stamp_list[4]
-        line[l.find_val('second',self.header,0)] = self.time_stamp_list[5]
+        self.fname = line[l.find_val('file_name',self.header,0)] 
+        self.fname_list=self.fname.split('_')
+        self.daq_name = self.fname_list[1]+'_'+self.fname_list[2]
+        self.time_stamp_sec = self.fname_list[0]
         
+        self.time_stamp = time.gmtime(float(str(self.time_stamp_sec)[:-9]))
+        self.time_stamp_string=time.strftime('%Y%m%d%H%M%S',self.time_stamp)
+        line[l.find_val('year',self.header,0)] = time.strftime('%Y',self.time_stamp)
+        line[l.find_val('month',self.header,0)] = time.strftime('%m',self.time_stamp)
+        line[l.find_val('day',self.header,0)] = time.strftime('%d',self.time_stamp)
+        line[l.find_val('hour',self.header,0)] = time.strftime('%H',self.time_stamp)
+        line[l.find_val('minute',self.header,0)] = time.strftime('%M',self.time_stamp)
+        line[l.find_val('second',self.header,0)] = time.strftime('%S',self.time_stamp)
+        line[l.find_val('sub sec',self.header,0)] = float(str(self.time_stamp_sec)[-9:])
 #         print self.time_stamp_list
+    
+    def time_cor_scope(self,line,pflag):
+        g.tprinter('Running time_cor',pflag)
+        g.printer('Timestamps in UTC!',pflag)
         
+        self.fname = line[l.find_val('file_name',self.header,0)] 
+        self.fname_list=self.fname.split('_')
+        self.daq_name = self.fname_list[1]+'_'+self.fname_list[2]
+        self.time_stamp = self.fname_list[0]
+        
+        self.time_stamp_sec  = time.mktime((int(self.time_stamp[0:4]),int(self.time_stamp[4:6]),int(self.time_stamp[6:8]),int(self.time_stamp[8:10]),int(self.time_stamp[10:12]),int(self.time_stamp[12:14]),0,0,0))
+        self.time_stamp = time.gmtime(float(str(self.time_stamp_sec)))
+        self.time_stamp_string=time.strftime('%Y%m%d%H%M%S',self.time_stamp)
+        self.time_stamp_string_nice=time.strftime('%Y.%m.%d_%H:%M:%S',self.time_stamp)
+        line[l.find_val('year',self.header,0)] = time.strftime('%Y',self.time_stamp)
+        line[l.find_val('month',self.header,0)] = time.strftime('%m',self.time_stamp)
+        line[l.find_val('day',self.header,0)] = time.strftime('%d',self.time_stamp)
+        line[l.find_val('hour',self.header,0)] = time.strftime('%H',self.time_stamp)
+        line[l.find_val('minute',self.header,0)] = time.strftime('%M',self.time_stamp)
+        line[l.find_val('second',self.header,0)] = time.strftime('%S',self.time_stamp)
+        line[l.find_val('time stamp',self.header,0)] = self.time_stamp_string_nice
+#         line[l.find_val('sub sec',self.header,0)] = self.time_stamp[9:10]    
+        
+#         t=time.mktime(t)
+
+        line[l.find_val('sec',self.header,0)] = self.time_stamp_sec
+    
     def c_counter(self,line,pflag):
         g.tprinter('Running c_counter',pflag)
         self.counts =0
@@ -232,45 +277,78 @@ class ana_data():
         g.printer('Delta time: ' +str(self.dtime),pflag)
         
         
-    def time_sec(self,line,pflag):
-        g.tprinter('Running time_sec',pflag)
+#     def time_sec(self,line,pflag):
+#         g.tprinter('Running time_sec',pflag)
+#     
+#         t= (int(self.time_stamp_list[0]),
+#             int(self.time_stamp_list[1]),
+#             int(self.time_stamp_list[2]),
+#             int(self.time_stamp_list[3]),
+#             int(self.time_stamp_list[4]),
+#             int(self.time_stamp_list[5]),0,0,0)
+# 
+#         self.time_s = time.mktime(t)
+#     
+#         
+#         line[l.find_val('time sec',self.header,0)] = self.time_s  
+#           
+#         g.printer('Time stamp in sec: '+str(self.time_s),pflag)
     
-        t= (int(self.time_stamp_list[0]),
-            int(self.time_stamp_list[1]),
-            int(self.time_stamp_list[2]),
-            int(self.time_stamp_list[3]),
-            int(self.time_stamp_list[4]),
-            int(self.time_stamp_list[5]),0,0,0)
-
-        self.time_s = time.mktime(t)
-    
+    def set_t(self,line,pflag):
+        g.tprinter('Running set_t',pflag)
         
-        line[l.find_val('time sec',self.header,0)] = self.time_s  
-          
-        g.printer('Time stamp in sec: '+str(self.time_s),pflag)
+        self.fname = line[l.find_val('file_name',self.header,0)] 
+        self.fname_list=self.fname.split('_')
+   
         
-    def set_t_zero(self,line,pflag):
+        self.time_stamp_sec = self.fname_list[0]
+#         self.start_time = 0
+        
+            
+        self.time_sec =  float(str(self.time_stamp_sec)[:-9])
+            
+            
+            
+        line[l.find_val('time sec',self.header,0)] = self.time_sec
+        
+    def set_t_zero(self,k,line,pflag):
         g.tprinter('Running set_t_zero',pflag)
         
+        self.fname = line[l.find_val('file_name',self.header,0)] 
+        self.fname_list=self.fname.split('_')
+        self.start = self.fname_list[-1]
+        g.printer(str(self.start),pflag)
         
-        if self.set_zero_flag == 0:
-            g.printer('setting time_zero',pflag)
-            t= (int(self.time_stamp_list[0]),
-                int(self.time_stamp_list[1]),
-                int(self.time_stamp_list[2]),
-                int(self.time_stamp_list[3]),
-                int(self.time_stamp_list[4]),
-                int(self.time_stamp_list[5]),0,0,0)
-
-            self.time_zero = time.mktime(t)
-            self.set_zero_flag =1
-            g.printer(str(self.time_zero),pflag)
+        self.time_stamp_sec = self.fname_list[0]
+        
+        g.printer(str(k),pflag)
+#         self.start_time = 0
+        if k==1 or self.start =='ST.csv':
+            g.printer('Set start time to:',pflag)
+            self.start_time =  float(str(self.time_stamp_sec)[:-9])
+            g.printer(str(self.start_time),pflag)
+            
         else:
-            g.printer('time_zero already set',pflag)
-            g.printer(str(self.time_zero),pflag)
-        
-        line[l.find_val('time zero',self.header,0)] = self.time_zero
-        
+            g.printer('Start time already set',pflag)
+            
+        line[l.find_val('start time',self.header,0)] = self.start_time
+#             g.printer('setting time_zero',pflag)
+#             t= (int(self.time_stamp_list[0]),
+#                 int(self.time_stamp_list[1]),
+#                 int(self.time_stamp_list[2]),
+#                 int(self.time_stamp_list[3]),
+#                 int(self.time_stamp_list[4]),
+#                 int(self.time_stamp_list[5]),0,0,0)
+#         
+#             self.time_zero = time.mktime(t)
+#             self.set_zero_flag =1
+#             g.printer(str(self.time_zero),pflag)
+#         else:
+#             g.printer('time_zero already set',pflag)
+#             g.printer(str(self.time_zero),pflag)
+#         
+#         line[l.find_val('time zero',self.header,0)] = self.time_zero
+#         
     def delta_time_zero(self,line,pflag):
         g.tprinter('Running delta_time_zero',pflag)
         
@@ -283,6 +361,7 @@ class ana_data():
     def data_loader(self,line,pflag):
         g.tprinter('Running data_loader',pflag)
         if self.pass_flag ==0:
+            g.printer('Loading: '+str(line[l.find_val('file_name_path',self.header,0)]),pflag)
             dp = line[l.find_val('file_name_path',self.header,0)]
             try:
                 self.data = np.loadtxt(dp,delimiter=',')
@@ -349,10 +428,10 @@ class ana_data():
     def offset_corr(self,line,data,pflag):
         g.tprinter('Running offset_corr',pflag)
         if self.pass_flag ==0:
-            len_data = int(round(len(self.data)*.05))-1
+            len_data = int(round(len(self.data)*.02))-1
 #             print len_data
                           
-            self.offset = np.mean(self.data[-len_data:,1])
+            self.offset = np.mean(self.data[:len_data,1])
             g.printer('Offset: '+str(self.offset),pflag)
             for i in self.data:
                 i[1]=i[1]-self.offset
@@ -367,6 +446,14 @@ class ana_data():
             g.printer('pass_flag = 1, skip')
             pass
             
+    def ns_convert(self,line,pflag):
+        g.tprinter('Running ns_convert',pflag)
+        
+        ydata = self.data[:,1]
+        xdata = self.data[:,0]*1e9
+        
+        self.data=np.array ([(xdata[i],ydata[i]) for i in range(len(ydata))])
+        line[l.find_val('ns convert',self.header,0)] =1
     
     def noise_finder(self,line,data,pflag):
         g.tprinter('Running noise_finder',pflag)
@@ -383,6 +470,20 @@ class ana_data():
             g.printer('pass_flag = 1, skip')
             pass 
     
+    def moving_average(self,line,n=3):
+        
+        ydata = self.data[:,1]
+        xdata = self.data[:,0]
+        ret = np.cumsum(ydata, dtype=float)
+   
+        ret[n:] = ret[n:] - ret[:-n]
+        
+        ydata = ret[n - 1:] / n
+        
+        self.data=np.array ([(xdata[i],ydata[i]) for i in range(len(ydata))])
+        line[l.find_val('moving average',self.header,0)] =1
+        line[l.find_val('num pts moving average',self.header,0)] =n
+        
     def sig_above(self,line,data,lim,pflag):
         g.tprinter('Running sig_above',pflag)
         self.sigab = 0
