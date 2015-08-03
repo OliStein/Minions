@@ -61,7 +61,7 @@ class plotter():
         plt.close()
      
      
-    def simple_plotter_zoom(self,line,data,header,xlow,xup,save_flag,pflag):
+    def simple_plotter_zoom(self,line,data,header,xlow,xup,info,save_flag,pflag):
         g.tprinter('Running simple_plotter',pflag)
 #         plt.xlim(0,100000)
         self.plotname = line[l.find_val('file_name',header,0)].split(".")[0]
@@ -79,37 +79,112 @@ class plotter():
 # #         plt.xmax = 1e-6
 #         plt.plot(data[:,0],data[:,1])
         
-        
-        
         fig = plt.figure()                                                               
         ax = fig.add_subplot(1,1,1)                                                      
 
-        ax.set_title(self.plotname+'\n'+str(self.date_string))
+        title = self.plotname+'\n'+str(self.date_string)+'\n'+str(info)
+        ax.set_title(title,fontsize = 11)
         ax.set_xlabel('time (ns)')
         ax.set_ylabel('signal (V)')
-
+        
+        
+        
+        data_x_max = np.max(data[:,0])
+        data_x_min = np.min(data[:,0])
+    
+        if not xlow < data_x_min:
+            data_x_min = xlow
+        else:
+            pass
+        
+        if not xup > data_x_max:
+            data_x_max = xup
+        else:
+            pass
+        
+        
+        data_y_max = np.max(data[:,1])
+        data_y_min = np.min(data[:,1])
+        g.printer('y max: '+str(data_y_max),pflag)
+        g.printer('y max: '+str(data_y_min),pflag)
+        g.printer('x max: '+str(data_x_max),pflag)
+        g.printer('x min: '+str(data_x_min),pflag)
+        
+        x_ticks_max = 5e6
+        y_ticks_max = 5
+        
         ax.plot(data[:,0],data[:,1])
         # major ticks every 20, minor ticks every 5
-        if (xup-xlow)>3000:                                      
-            x_major_ticks = np.arange(xlow-2000, xup+2000, 2000)                                              
-            x_minor_ticks = np.arange(xlow-2000, xup+2000, 500)
-        elif (xup-xlow) >900:
-            x_major_ticks = np.arange(xlow-500, xup+500, 500)                                              
-            x_minor_ticks = np.arange(xlow-500, xup+500, 250)    
-        else:
-            x_major_ticks = np.arange(xlow-50,xup+50, 50)                                              
-            x_minor_ticks = np.arange(xlow-25,xup+25, 25) 
+        
+        
+        if (xup-xlow)>50000:                
+            d_1 = 45000
+            d_2 = 10000
+                                  
+            x_major_ticks = np.arange(xlow-d_1, xup+d_1, d_1)                                              
+            x_minor_ticks = np.arange(xlow-d_2, xup+d_2, d_2)
+        elif (xup-xlow)>20000:                
+            d_1 = 10000
+            d_2 = 2500
+                                  
+            x_major_ticks = np.arange(xlow-d_1, xup+d_1, d_1)                                              
+            x_minor_ticks = np.arange(xlow-d_2, xup+d_2, d_2)
+        elif (xup-xlow)>3000:
+            d_1 = 2000
+            d_2 = 500
+                                  
+            x_major_ticks = np.arange(xlow-d_1, xup+d_1, d_1)                                              
+            x_minor_ticks = np.arange(xlow-d_2, xup+d_2, d_2)                                      
             
+        elif (xup-xlow) >900:
+            d_1 = 500
+            d_2 = 250
+                                  
+            x_major_ticks = np.arange(xlow-d_1, xup+d_1, d_1)                                              
+            x_minor_ticks = np.arange(xlow-d_2, xup+d_2, d_2)
+            
+        else:
+            d_1 = 50
+            d_2 = 25
+                                  
+            x_major_ticks = np.arange(xlow-d_1, xup+d_1, d_1)                                              
+            x_minor_ticks = np.arange(xlow-d_2, xup+d_2, d_2)
+            
+        if (data_y_max-data_y_min)>1.5:
+            g.printer('super large y scale',pflag)
+            data_y_max = 8.25
+            data_y_min = -1.25                                     
+            y_major_ticks = np.arange(-y_ticks_max, y_ticks_max, .1)                                              
+            y_minor_ticks = np.arange(-y_ticks_max, y_ticks_max, .05)
+        elif (data_y_max-data_y_min)>0.5:
+            g.printer('large y scale',pflag)
+            data_y_max = 1.5
+            data_y_min = -.25                                     
+            y_major_ticks = np.arange(-y_ticks_max, y_ticks_max, .1)                                              
+            y_minor_ticks = np.arange(-y_ticks_max, y_ticks_max, .05)
+        elif(data_y_max-data_y_min)>0.2: 
+            g.printer('small y scale',pflag)
+            data_y_max = .3
+            data_y_min = -.1
+            y_major_ticks = np.arange(-y_ticks_max, y_ticks_max, .05)                                              
+            y_minor_ticks = np.arange(-y_ticks_max, y_ticks_max, .025)    
+        else:
+            g.printer('small y scale',pflag)
+            data_y_max = .2
+            data_y_min = -.05
+            y_major_ticks = np.arange(-y_ticks_max, y_ticks_max, .05)                                              
+            y_minor_ticks = np.arange(-y_ticks_max, y_ticks_max, .025) 
                           
-        y_major_ticks = np.arange(-1, 1, .1)                                              
-        y_minor_ticks = np.arange(-1, 1, .01)                                               
+#         y_major_ticks = np.arange(-1, 1, .1)                                              
+#         y_minor_ticks = np.arange(-1, 1, .01)                                               
         ax.set_xticks(x_major_ticks, minor=False)
         ax.set_xticks(x_minor_ticks, minor=True)
         ax.set_yticks(y_major_ticks, minor=False)
+        ax.set_yticks(y_minor_ticks, minor=True)
 #         ax.yaxis.grid(True, which='major')
 #         ax.yaxis.grid(True, which='minor')
-        ax.set_xlim([xlow,xup])
-        ax.set_ylim([-.25,.25])
+        ax.set_xlim([data_x_min,data_x_max])
+        ax.set_ylim([data_y_min,data_y_max])
         
         ax.tick_params(axis = 'both', which = 'major', labelsize = 12)
         ax.tick_params(axis = 'both', which = 'minor', labelsize = 0)
@@ -128,7 +203,7 @@ class plotter():
 
         
         if save_flag == 1:
-            file_name = os.path.join(self.save_path,str(self.plotname)+'_'+str(self.num)+'_'+str(xlow)+'_to_'+str(xup)+'_plot.png')
+            file_name = os.path.join(self.save_path,str(self.plotname)+'_'+str(self.num)+'_'+str(xlow)+'_to_'+str(xup)+'_'+str(info)+'_plot.png')
             g.printer(file_name,pflag) 
             plt.savefig(file_name)
         else:
@@ -184,28 +259,53 @@ class plotter():
         g.printer('x max: '+str(data_x_max),pflag)
         g.printer('x min: '+str(data_x_min),pflag)
         
-        x_ticks_max = 5e6
+        x_ticks_max = 1
         y_ticks_max = 5
          
-        if (data_x_max-data_x_min)>5e-6:  
-            g.printer('long x scale',pflag)                                    
-            x_major_ticks = np.arange(-x_ticks_max, x_ticks_max, 50000)                                              
-            x_minor_ticks = np.arange(-x_ticks_max, x_ticks_max, 25000)
+        if (data_x_max-data_x_min)>6e4:  
+            g.printer('long x scale',pflag) 
+            off_set = 0
+            data_x_max = 5e5
+            data_x_min = -1e5                                 
+            x_major_ticks = np.arange(data_x_min-off_set, data_x_max+off_set, 10000)                                              
+            x_minor_ticks = np.arange(data_x_min-off_set, data_x_max+off_set, 5000)
+        elif (data_x_max-data_x_min)>1e4:
+            off_set = 0
+            data_x_max = 5e4
+            data_x_min = -1e4
+            g.printer('mid x scale',pflag)
+            x_major_ticks = np.arange(data_x_min-off_set, data_x_max+off_set, 10000)                                              
+            x_minor_ticks = np.arange(data_x_min-off_set, data_x_max+off_set, 2500) 
         else:
             g.printer('short x scale',pflag)
-            x_major_ticks = np.arange(-x_ticks_max, x_ticks_max, 10000)                                              
-            x_minor_ticks = np.arange(-x_ticks_max, x_ticks_max, 2500) 
+            off_set = 0
+            data_x_max = 5e3
+            data_x_min = -1e3
+            x_major_ticks = np.arange(data_x_min-off_set, data_x_max+off_set,500)                                              
+            x_minor_ticks = np.arange(data_x_min-off_set, data_x_max+off_set, 250)     
         
-        if (data_y_max-data_y_min)>0.5:
-            g.printer('large y scale',pflag)
-            data_y_max = .5
-            data_y_min = -.5                                      
+        if (data_y_max-data_y_min)>1.5:
+            g.printer('super large y scale',pflag)
+            data_y_max = 8.25
+            data_y_min = -1.25                                     
             y_major_ticks = np.arange(-y_ticks_max, y_ticks_max, .1)                                              
             y_minor_ticks = np.arange(-y_ticks_max, y_ticks_max, .05)
+        elif (data_y_max-data_y_min)>0.5:
+            g.printer('large y scale',pflag)
+            data_y_max = 1.5
+            data_y_min = -.25                                     
+            y_major_ticks = np.arange(-y_ticks_max, y_ticks_max, .1)                                              
+            y_minor_ticks = np.arange(-y_ticks_max, y_ticks_max, .05)
+        elif(data_y_max-data_y_min)>0.2: 
+            g.printer('small y scale',pflag)
+            data_y_max = .3
+            data_y_min = -.1
+            y_major_ticks = np.arange(-y_ticks_max, y_ticks_max, .05)                                              
+            y_minor_ticks = np.arange(-y_ticks_max, y_ticks_max, .025)    
         else:
             g.printer('small y scale',pflag)
             data_y_max = .1
-            data_y_min = -.1
+            data_y_min = -.05
             y_major_ticks = np.arange(-y_ticks_max, y_ticks_max, .05)                                              
             y_minor_ticks = np.arange(-y_ticks_max, y_ticks_max, .025) 
         
