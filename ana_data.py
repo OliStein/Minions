@@ -20,6 +20,7 @@ import time
 
 
 from log_file_setup import log_files
+
 # from analysis_modules import data
 from log_file_setup import Tee
 import matplotlib.pyplot as plt
@@ -27,6 +28,7 @@ from gen_class import gen
 from data_import import imp
 from plotter_class import plotter
 from list_class import lists
+from tables.parameters import LIMBOUNDS_MAX_SIZE
 
 l = lists()
 g = gen()
@@ -90,7 +92,10 @@ class ana_data():
         
         self.fname = line[l.find_val('file_name',self.header,0)] 
         self.fname_list=self.fname.split('_')
-        self.daq_name = self.fname_list[1]
+        self.daq_name = self.fname_list[1]+'_'+self.fname_list[2]
+        
+        print self.daq_name
+        time.sleep(5)
         self.time_stamp = self.fname_list[0]
         self.mode = self.fname_list[2].split('.')[0]
 #         self.meas_nr = self.fname_list[3] 
@@ -110,8 +115,10 @@ class ana_data():
             self.rdefdaq.append(i[0])
             
 #         print self.rdefdaq
+        self.daq_header = self.rdef[0]
+        print self.daq_header
         self.daq_ind=l.find_val(self.daq_name,self.rdefdaq,0)
-        self.ip=self.rdef[self.daq_ind][1]
+        self.ip=self.rdef[self.daq_ind][l.find_val('ip',self.daq_header,0)]
         self.beam=self.rdef[self.daq_ind][2]
         self.loc=self.rdef[self.daq_ind][3]
         self.dcum=self.rdef[self.daq_ind][4]
@@ -123,66 +130,62 @@ class ana_data():
         line[l.find_val('type',self.header,0)] = self.type
         line[l.find_val('beam',self.header,0)] = self.beam
         
-        
     def name_info_scope(self,line,rdef,pflag):
-        g.tprinter('Running name_info for scopes',pflag)
+        g.tprinter('Running name_info_scope',pflag)
         
         self.rdef = rdef
         
         self.fname = line[l.find_val('file_name',self.header,0)] 
         self.fname_list=self.fname.split('_')
+        
         self.daq_name = self.fname_list[1]+'_'+self.fname_list[2]
+        
+#         print self.daq_name
+#         time.sleep(5)
+        
+        
+#         self.daq_name = self.fname_list[1]
         self.time_stamp = self.fname_list[0]
-#         self.mode = self.fname_list[2].split('.')[0]
+        self.mode = self.fname_list[2].split('.')[0]
 #         self.meas_nr = self.fname_list[3] 
         
         g.printer('time stamp: '+str(self.time_stamp),pflag)
 #         g.printer('meas nr: '+str(self.meas_nr),pflag)
-        g.printer('daq name: '+str(self.daq_name),pflag)
-#         g.printer('mode: '+str(self.mode),pflag)
+        g.printer('file info: '+str(self.daq_name),pflag)
+        g.printer('channel: '+str(self.mode),pflag)
         
         line[l.find_val('time_stamp',self.header,0)] = self.time_stamp
 #         line[l.find_val('meas_nr',self.header,0)] = self.meas_nr
-#         line[l.find_val('daq_name',self.header,0)] = self.daq_name
-#         line[l.find_val('mode',self.header,0)] = self.mode
+        line[l.find_val('daq_name',self.header,0)] = self.daq_name
+        line[l.find_val('channel',self.header,0)] = self.mode
 #         print self.fname_list    
         self.rdefdaq = []
         for i in self.rdef:
             self.rdefdaq.append(i[0])
+        
+        self.daq_header = self.rdef[0]
+        print self.daq_header
+        self.daq_ind=l.find_val(self.daq_name,self.rdefdaq,0)
+        self.ip=self.rdef[self.daq_ind][l.find_val('ip',self.daq_header,0)]
             
 #         print self.rdefdaq
-        self.daq_ind=l.find_val(self.daq_name,self.rdefdaq,0)
-        self.ip=self.rdef[self.daq_ind][1]
-        self.beam=self.rdef[self.daq_ind][2]
-        self.loc=self.rdef[self.daq_ind][3]
-        self.dcum=self.rdef[self.daq_ind][4]
-        self.type=self.rdef[self.daq_ind][5]
-        self.channel=self.rdef[self.daq_ind][6]
-        self.name=self.rdef[self.daq_ind][7]
-        
+#         self.daq_ind=l.find_val(self.daq_name,self.rdefdaq,0)
+#         self.ip=self.rdef[self.daq_ind][1]
+        self.beam=self.rdef[self.daq_ind][l.find_val('beam',self.daq_header,0)]
+        self.loc=self.rdef[self.daq_ind][l.find_val('loc',self.daq_header,0)]
+        self.delta=self.rdef[self.daq_ind][l.find_val('delta',self.daq_header,0)]
+        self.dcum=self.rdef[self.daq_ind][l.find_val('dcum',self.daq_header,0)]
+        self.type=self.rdef[self.daq_ind][l.find_val('type',self.daq_header,0)]
+        self.amp=self.rdef[self.daq_ind][l.find_val('amp',self.daq_header,0)]
         
         line[l.find_val('ip',self.header,0)] = self.ip
         line[l.find_val('loc',self.header,0)] = self.loc
         line[l.find_val('dcum',self.header,0)] = self.dcum
         line[l.find_val('type',self.header,0)] = self.type
         line[l.find_val('beam',self.header,0)] = self.beam
-        line[l.find_val('channel',self.header,0)] = self.channel
-        line[l.find_val('daq_name',self.header,0)] = self.name
-        
-            
-#     def time_cor(self,line,pflag):
-#         g.tprinter('Running time_cor',pflag)
-#         g.printer('Timestamps in UTC!',pflag)
-#         
-#         self.time_stamp_list = [self.time_stamp[:4],self.time_stamp[4:6],self.time_stamp[6:8],self.time_stamp[8:10],self.time_stamp[10:12],self.time_stamp[12:14]]
-#         self.time_stamp_string=str(self.time_stamp[:4])+'-'+str(self.time_stamp[4:6])+'-'+str(self.time_stamp[6:8])+'_'+str(self.time_stamp[8:10])+':'+str(self.time_stamp[10:12])+':'+str(self.time_stamp[12:14])
-#         line[l.find_val('year',self.header,0)] = self.time_stamp_list[0]
-#         line[l.find_val('month',self.header,0)] = self.time_stamp_list[1]
-#         line[l.find_val('day',self.header,0)] = self.time_stamp_list[2]
-#         line[l.find_val('hour',self.header,0)] = self.time_stamp_list[3]
-#         line[l.find_val('minute',self.header,0)] = self.time_stamp_list[4]
-#         line[l.find_val('second',self.header,0)] = self.time_stamp_list[5]
-
+        line[l.find_val('amp',self.header,0)] = self.amp    
+          
+    
 
     def time_cor(self,line,pflag):
         g.tprinter('Running time_cor',pflag)
@@ -193,7 +196,13 @@ class ana_data():
         self.daq_name = self.fname_list[1]+'_'+self.fname_list[2]
         self.time_stamp_sec = self.fname_list[0]
         
+        
+        g.rinter('Time stamp',pflag)
+        
         self.time_stamp = time.gmtime(float(str(self.time_stamp_sec)[:-9]))
+        g.printer(str(self.time_stamp),pflag)
+        
+        time.sleep(5)
         self.time_stamp_string=time.strftime('%Y%m%d%H%M%S',self.time_stamp)
         line[l.find_val('year',self.header,0)] = time.strftime('%Y',self.time_stamp)
         line[l.find_val('month',self.header,0)] = time.strftime('%m',self.time_stamp)
@@ -210,10 +219,26 @@ class ana_data():
         
         self.fname = line[l.find_val('file_name',self.header,0)] 
         self.fname_list=self.fname.split('_')
-        self.daq_name = self.fname_list[1]+'_'+self.fname_list[2]
+        self.daq_name = self.fname_list[1]
+        
+#         self.daq_ind=l.find_val(self.daq_name,self.rdefdaq,0)
+#         self.delta=self.rdef[self.daq_ind][4] 
+
         self.time_stamp = self.fname_list[0]
         
-        self.time_stamp_sec  = time.mktime((int(self.time_stamp[0:4]),int(self.time_stamp[4:6]),int(self.time_stamp[6:8]),int(self.time_stamp[8:10]),int(self.time_stamp[10:12]),int(self.time_stamp[12:14]),0,0,0))
+        print self.daq_name
+        print self.delta
+        
+        
+        g.printer('Time stamp',pflag)
+        
+        self.time_stamp_sec = time.mktime((int(self.time_stamp[0:4]),int(self.time_stamp[4:6]),int(self.time_stamp[6:8]),int(self.time_stamp[8:10]),int(self.time_stamp[10:12]),int(self.time_stamp[12:14]),0,0,0))
+        self.time_stamp_sec = self.time_stamp_sec + int(self.delta)
+        
+        g.printer(str(self.time_stamp_sec),pflag)
+        
+#         time.sleep(5)
+    
         self.time_stamp = time.gmtime(float(str(self.time_stamp_sec)))
         self.time_stamp_string=time.strftime('%Y%m%d%H%M%S',self.time_stamp)
         self.time_stamp_string_nice=time.strftime('%Y.%m.%d_%H:%M:%S',self.time_stamp)
@@ -439,22 +464,53 @@ class ana_data():
               
             line[l.find_val('offset',self.header,0)] =self.offset
             line[l.find_val('offset_corr',self.header,0)] =1
-            offset = np.mean(self.data[-len_data:,1])
+            offset = np.mean(self.data[:len_data,1])
             g.printer('New offset: '+str(offset),pflag)  
             
         else:
             g.printer('pass_flag = 1, skip')
-            pass
+        
             
     def ns_convert(self,line,pflag):
         g.tprinter('Running ns_convert',pflag)
+        if self.pass_flag ==0:
+            ydata = self.data[:,1]
+            xdata = self.data[:,0]*1e9
+            
+            self.data=np.array ([(xdata[i],ydata[i]) for i in range(len(ydata))])
+            line[l.find_val('ns convert',self.header,0)] =1
+            g.printer('done',pflag)
         
-        ydata = self.data[:,1]
-        xdata = self.data[:,0]*1e9
+        else:
+            g.printer('pass_flag = 1, skip')
+            
+    def amp_corr(self,line,pflag):
+        g.tprinter('Running amp_corr',pflag)
+        if self.pass_flag ==0:
+            amp = int(line[l.find_val('amp',self.header,0)])
+            ampfac = 1
+            if amp == '-20':
+                ampfac =-10
+            elif amp == '0':
+                ampfac = 1
+            elif amp == '+20':
+                ampfac = 10 
+            elif amp == '+40':
+                ampfac = 100
+            else: pass
+            
+            ydata = self.data[:,1]*ampfac
+            xdata = self.data[:,0]
+            
+            self.data=np.array ([(xdata[i],ydata[i]) for i in range(len(ydata))])
+            line[l.find_val('amp_corr',self.header,0)] =1
         
-        self.data=np.array ([(xdata[i],ydata[i]) for i in range(len(ydata))])
-        line[l.find_val('ns convert',self.header,0)] =1
-    
+            g.printer('done',pflag)
+        else:
+            g.printer('pass_flag = 1, skip')
+            
+            
+            
     def noise_finder(self,line,data,pflag):
         g.tprinter('Running noise_finder',pflag)
         if self.pass_flag==0:
@@ -468,22 +524,27 @@ class ana_data():
             line[l.find_val('noise',self.header,0)] =self.noise
         else:
             g.printer('pass_flag = 1, skip')
-            pass 
+            
     
-    def moving_average(self,line,n=3):
-        
-        ydata = self.data[:,1]
-        xdata = self.data[:,0]
-        ret = np.cumsum(ydata, dtype=float)
-   
-        ret[n:] = ret[n:] - ret[:-n]
-        
-        ydata = ret[n - 1:] / n
-        
-        self.data=np.array ([(xdata[i],ydata[i]) for i in range(len(ydata))])
-        line[l.find_val('moving average',self.header,0)] =1
-        line[l.find_val('num pts moving average',self.header,0)] =n
-        
+    def moving_average(self,line,n=3,pflag=1):
+        g.tprinter('Running moving_average',pflag)
+        if self.pass_flag==0:
+            ydata = self.data[:,1]
+            xdata = self.data[:,0]
+            ret = np.cumsum(ydata, dtype=float)
+       
+            ret[n:] = ret[n:] - ret[:-n]
+            
+            ydata = ret[n - 1:] / n
+            
+            self.data=np.array ([(xdata[i],ydata[i]) for i in range(len(ydata))])
+            line[l.find_val('moving average',self.header,0)] =1
+            line[l.find_val('num pts moving average',self.header,0)] =n
+            g.printer('done',pflag)
+        else:
+            g.printer('pass_flag = 1, skip')
+            
+            
     def sig_above(self,line,data,lim,pflag):
         g.tprinter('Running sig_above',pflag)
         self.sigab = 0
@@ -504,21 +565,68 @@ class ana_data():
     def max_finder(self,line,data,pflag):
         g.tprinter('Running max_finder',pflag)
         if self.pass_flag ==0:
-            self.max_list=[]
+            self.max = np.max(self.data[:,1])
             
+            line[l.find_val('max',self.header,0)] =self.max
+            g.printer('max: '+str(self.max),pflag)
+        
             
-            pass
-        
-        
         else:
             g.printer('pass_flag =1, skip')
-            pass    
+            pass  
         
+    def min_finder(self,line,data,pflag):
+        g.tprinter('Running min_finder',pflag)
+        if self.pass_flag ==0:
+            self.min = np.max(self.data[:,1])
+            
+            line[l.find_val('min',self.header,0)] =self.min
+            g.printer('min: '+str(self.min),pflag)
+        
+            
+        else:
+            g.printer('pass_flag =1, skip')
+            
+        
+    def signal_outside_noise(self,line,data,fac,pflag):
+        g.tprinter('Running signal_above_noise',pflag)
+        if self.pass_flag ==0:
+            g.printer('fac: '+str(fac),pflag)
+            
+            lim = self.noise*fac
+            
+            pos_count = 0
+            neg_count = 0
+            for i in self.data:
+                if i[1] > lim:
+                    pos_count +=1
+                if i[1] < -lim:
+                    neg_count +=1
+                    
+            
+            
                 
+            
+            line[l.find_val('pos_sig',self.header,0)] =pos_count
+            line[l.find_val('neg_sig',self.header,0)] =pos_count
+            g.printer('pos sig: '+str(pos_count),pflag)
+            g.printer('neg sig: '+str(neg_count),pflag)
+        
+        else:
+            g.printer('pass_flag =1, skip')     
+            
+            
+            
+            
+            
     def analysed(self,line,pflag):
         g.tprinter('Setting line to analysed',pflag)
-        line[l.find_val('analysed',self.header,0)] = 1
         
+        if self.pass_flag ==0:
+            line[l.find_val('analysed',self.header,0)] = 1
+        else:
+            g.printer('pass_flag = 1, skip')
+            g.printer('file not set to analysed',pflag)
         
     def max_find(self,data,n,pflag):
         maxind = np.argmax(data,)
